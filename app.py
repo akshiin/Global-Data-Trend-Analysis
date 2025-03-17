@@ -5,7 +5,17 @@ st.set_page_config(layout="wide")
 
 st.title("Global Data Trend Analysis App")
 
-data = pd.read_csv("data.csv", index_col=False)
+data = pd.read_csv("results.csv", index_col=False)
+
+trend_type = st.sidebar.radio(
+    label="Trend type",
+    options=["Trending", "Downgrading"]
+)
+
+bp = st.sidebar.radio(
+    label="Breakpoint (last N years)",
+    options=[3, 5, 10]
+)
 
 sector = st.sidebar.selectbox(
     label="Sector",
@@ -28,26 +38,45 @@ indicator = st.sidebar.selectbox(
 
 data = data.loc[data['Indicator'] == indicator].reset_index(drop=True)
 
-year = st.sidebar.number_input(
-    label="Year",
-    min_value=int(data['Year'].min()),
-    max_value=int(data['Year'].max()),
-    value=int(data['Year'].max())
-)
-
-table_data = data.loc[data['Year'] == year].reset_index(drop=True)
+table_data = data.loc[data['Year'] == data['Year'].max()].reset_index(drop=True)
 
 top_countries = st.sidebar.number_input(
     label="Top N countries",
     min_value=5,
-    max_value=50,
+    max_value=table_data['Rank'].max(),
     value=10,
     step=5
 )
 
-table_data = table_data.sort_values(by='Rank', ascending=True).reset_index(drop=True).loc[:top_countries]
+if trend_type == "Trending":
+    table_data = table_data.loc[
+        (table_data[f'p_value_{bp}'] < 0.05) &
+        (table_data[f'coeff_after_{bp}'] > 0)
+    ].sort_values(
+        by=f'chow_test_result_{bp}',
+        ascending=False
+    ).reset_index(drop=True).loc[:top_countries]
 
-st.dataframe(data=table_data)
+else:
+    table_data = table_data.loc[
+        (table_data[f'p_value_{bp}'] < 0.05) &
+        (table_data[f'coeff_after_{bp}'] < 0)
+    ].sort_values(
+        by=f'chow_test_result_{bp}',
+        ascending=False
+    ).reset_index(drop=True).loc[:top_countries]
+
+st.subheader(
+    body=f"Top-{top_countries} {trend_type.lower()} countries in {indicator} indicator for the last {bp} years"
+)
+
+st.dataframe(
+    data=table_data[[
+        'Country', 'Indicator', 'Subsector',
+        'Sector', 'Amount', f'chow_test_result_{bp}'
+    ]],
+    column_config={f'chow_test_result_{bp}': st.column_config.NumberColumn(format="%.2f")}
+)
 
 countries = st.multiselect(
     label="Countries",
