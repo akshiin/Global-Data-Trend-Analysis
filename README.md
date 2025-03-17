@@ -38,6 +38,19 @@ The Global Data Trend Analysis App is a Streamlit-based web application designed
    pip install -r requirements.txt
    ```
 
+## Handling Large CSV Files
+Since GitHub has a 100MB file limit, handling large CSV files like `results.csv` requires alternative method:
+
+### **Using Git LFS (Recommended)**
+If your CSV file is large, use Git Large File Storage (LFS):
+   ```sh
+   git lfs install
+   git lfs track "results.csv"
+   git add .gitattributes results.csv
+   git commit -m "Track large file with Git LFS"
+   git push origin main
+   ```
+
 ## Usage
 Run the Streamlit app using the following command:
 ```sh
