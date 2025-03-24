@@ -101,3 +101,9 @@ Ensure that the required Python packages are installed by using `requirements.tx
 
 ## License
 This project is licensed under the MIT License.
+
+## Resources
+- [Streamlit Documentation](https://docs.streamlit.io)
+- [Pandas Documentation](https://pandas.pydata.org/docs/reference/index.html)
+- [SQLite3 Documentation](https://docs.python.org/3/library/sqlite3.html)
+
