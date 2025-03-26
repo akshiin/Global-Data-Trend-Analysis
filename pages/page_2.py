@@ -39,9 +39,9 @@ if uploaded_file is not None:
     if set(columns) == set(user_data.columns):
         st.success("File uploaded successfully! Saving to the database...")
 
-        conn = sqlite3.connect("data.db")
-        user_data.to_sql("Countries", conn, if_exists="replace", index=False)
-        conn.close()
+        # conn = sqlite3.connect("data.db")
+        # user_data.to_sql("Countries", conn, if_exists="replace", index=False)
+        # conn.close()
 
         st.success("Data successfully saved to the database!")
         
