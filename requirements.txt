@@ -43,6 +43,7 @@ platformdirs==4.3.6
 prompt_toolkit==3.0.50
 protobuf==5.29.3
 psutil==7.0.0
+psycopg2-binary==2.9.10
 ptyprocess==0.7.0
 pure_eval==0.2.3
 pyarrow==19.0.1
@@ -59,6 +60,7 @@ scipy==1.15.2
 seaborn==0.13.2
 six==1.17.0
 smmap==5.0.2
+SQLAlchemy==2.0.39
 stack-data==0.6.3
 statsmodels==0.14.4
 streamlit==1.43.2
