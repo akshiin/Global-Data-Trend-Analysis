@@ -9,14 +9,21 @@ st.title("Global Data Trend Analysis App")
 
 st.divider()
 
-conn = get_connection()
-cursor = conn.cursor()
+@st.cache_data
+def read_data():
+    
+    conn = get_connection()
+    cursor = conn.cursor()
 
-data = pd.read_sql("SELECT * FROM countries", conn)
-data.drop('id', axis=1, inplace=True)
+    data = pd.read_sql("SELECT * FROM countries", conn)
+    data.drop('id', axis=1, inplace=True)
 
-cursor.close()
-conn.close()
+    cursor.close()
+    conn.close()
+
+    return data
+
+data = read_data()
 
 trend_type = st.sidebar.radio(
     label="Trend type",
