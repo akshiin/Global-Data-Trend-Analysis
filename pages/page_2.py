@@ -1,8 +1,7 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
 
-from utils import chow_test
+from utils import chow_test, get_connection, fast_insert
 
 st.set_page_config(layout="wide")
 
@@ -37,13 +36,9 @@ if uploaded_file is not None:
     user_data = pd.read_csv(uploaded_file)
 
     if set(columns) == set(user_data.columns):
+
         st.success("File uploaded successfully! Saving to the database...")
-
-        # conn = sqlite3.connect("data.db")
-        # user_data.to_sql("Countries", conn, if_exists="replace", index=False)
-        # conn.close()
-
-        st.success("Data successfully saved to the database!")
+        st.success("Data successfully saved!")
         
         st.dataframe(user_data.head())
 
@@ -87,9 +82,53 @@ if uploaded_file is not None:
 
         final_df = df.merge(test_results_df, on=['Country', 'Indicator'], how='left')
 
-        conn = sqlite3.connect("calculated_data.db")
-        final_df.to_sql("Countries", conn, if_exists="replace", index=False)
-        conn.close()
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        create_table_query = """
+        DROP TABLE IF EXISTS countries;
+        CREATE TABLE countries (
+            id SERIAL PRIMARY KEY,
+            year INTEGER,
+            sector TEXT,
+            subsector TEXT,
+            indicator TEXT,
+            country TEXT,
+            country_code TEXT,
+            amount NUMERIC,
+            rank NUMERIC,
+            chow_test_result_3 NUMERIC,
+            p_value_3 NUMERIC,
+            coeff_before_3 NUMERIC,
+            coeff_after_3 NUMERIC,
+            chow_test_result_5 NUMERIC,
+            p_value_5 NUMERIC,
+            coeff_before_5 NUMERIC,
+            coeff_after_5 NUMERIC,
+            chow_test_result_10 NUMERIC,
+            p_value_10 NUMERIC,
+            coeff_before_10 NUMERIC,
+            coeff_after_10 NUMERIC
+        );
+        """
+
+        cursor.execute(create_table_query)
+        conn.commit()
+
+        st.success("✅ Table 'countries' created successfully!")
+
+        final_df = final_df[[
+            "Year", "Sector", "Subsector", "Indicator", "Country", "Country_code", "Amount", "Rank", 
+            "chow_test_result_3", "chow_test_result_5", "chow_test_result_10", "p_value_3", "p_value_5", "p_value_10", 
+            "coeff_before_3", "coeff_before_5", "coeff_before_10", "coeff_after_3", "coeff_after_5", "coeff_after_10"
+        ]]
+
+        with st.spinner("⚙️ Saving data to the database...", show_time=True):
+            
+            fast_insert(final_df)
+
+            cursor.close()
+            conn.close()
 
         st.success("✅ Chow Test Calculated & Data Saved to New Database!")
 

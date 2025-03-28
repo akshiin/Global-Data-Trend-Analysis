@@ -1,6 +1,7 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
+
+from utils import get_connection
 
 st.set_page_config(layout="wide")
 
@@ -8,10 +9,14 @@ st.title("Global Data Trend Analysis App")
 
 st.divider()
 
-conn = sqlite3.connect("calculated_data.db")
+conn = get_connection()
 cursor = conn.cursor()
 
-data = pd.read_sql("SELECT * FROM Countries", conn)
+data = pd.read_sql("SELECT * FROM countries", conn)
+data.drop('id', axis=1, inplace=True)
+
+cursor.close()
+conn.close()
 
 trend_type = st.sidebar.radio(
     label="Trend type",
@@ -25,31 +30,31 @@ bp = st.sidebar.radio(
 
 sector = st.sidebar.selectbox(
     label="Sector",
-    options=list(data['Sector'].unique())
+    options=list(data['sector'].unique())
 )
 
-data = data.loc[data['Sector'] == sector].reset_index(drop=True)
+data = data.loc[data['sector'] == sector].reset_index(drop=True)
 
 subsector = st.sidebar.selectbox(
     label="Subsector",
-    options=list(data['Subsector'].unique())
+    options=list(data['subsector'].unique())
 )
 
-data = data.loc[data['Subsector'] == subsector].reset_index(drop=True)
+data = data.loc[data['subsector'] == subsector].reset_index(drop=True)
 
 indicator = st.sidebar.selectbox(
     label="Indicator",
-    options=list(data['Indicator'].unique())
+    options=list(data['indicator'].unique())
 )
 
-data = data.loc[data['Indicator'] == indicator].reset_index(drop=True)
+data = data.loc[data['indicator'] == indicator].reset_index(drop=True)
 
-table_data = data.loc[data['Year'] == data['Year'].max()].reset_index(drop=True)
+table_data = data.loc[data['year'] == data['year'].max()].reset_index(drop=True)
 
 top_countries = st.sidebar.number_input(
     label="Top N countries",
     min_value=5,
-    max_value=table_data['Rank'].max(),
+    max_value=int(table_data['rank'].max()),
     value=10,
     step=5
 )
@@ -80,21 +85,21 @@ table_data.index = table_data.index + 1
 
 st.dataframe(
     data=table_data[[
-        'Country', 'Indicator', 'Subsector',
-        'Sector', f'chow_test_result_{bp}'
+        'country', 'indicator', 'subsector',
+        'sector', f'chow_test_result_{bp}'
     ]],
     column_config={f'chow_test_result_{bp}': st.column_config.NumberColumn(format="%.2f")}
 )
 
 countries = st.multiselect(
     label="Countries",
-    options=list(table_data['Country'].unique()),
-    default=list(table_data['Country'].unique())
+    options=list(table_data['country'].unique()),
+    default=list(table_data['country'].unique())
 )
 
 st.line_chart(
-    data=data.loc[data['Country'].isin(countries)],
-    x='Year',
-    y='Amount',
-    color="Country"
+    data=data.loc[data['country'].isin(countries)],
+    x='year',
+    y='amount',
+    color="country"
 )
