@@ -1,14 +1,18 @@
 # Global Data Trend Analysis App
 
 ## Overview
-The Global Data Trend Analysis App is a Streamlit-based web application designed to analyze global trends across various Key Performance Indicators (KPIs). It utilizes pre-calculated Chow Test results to identify trending and downgrading patterns in different sectors and subsectors over the past 3, 5, or 10 years. Users can also upload their own data, and the system will calculate the trend using the Chow Test and store the results in an SQLite3 database.
+The **Global Data Trend Analysis App** is a Streamlit-based web application designed to analyze global trends across various **Key Performance Indicators (KPIs)**. It utilizes **the Chow Test** to detect structural breaks and identify trending and downgrading patterns across multiple sectors and subsectors over different timeframes (**3, 5, or 10 years**).  
 
-## Features
-- **Interactive filtering**: Users can select sector, subsector, indicator, and trend type.
-- **Breakpoint selection**: Choose between 3, 5, or 10 years for trend analysis.
-- **Top N countries ranking**: View the top trending or downgrading countries based on Chow Test results.
-- **Data visualization**: Displays a table of results and a line chart for selected countries over time.
-- **User data upload**: Users can upload their own dataset for trend analysis using the Chow Test. The results are automatically stored in an SQLite3 database.
+Users can also **upload their own datasets**, and the system will compute trend analysis in real-time. The results are now stored in a **PostgreSQL database** for better performance and scalability. Additionally, a **caching system** has been implemented to speed up query execution and optimize resource usage.
+
+## Key Features
+- **Interactive Filtering**: Users can select sector, subsector, indicator, and trend type.
+- **Structural Break Detection**: Detects breakpoints over 3, 5, or 10 years using the Chow Test.
+- **Top N Country Ranking**: View the top trending or declining countries.
+- **Data Visualization**: Line charts and tables displaying results dynamically.
+- **User Data Upload**: Users can upload their own datasets, and the system will analyze the trend and store results in a **PostgreSQL** database.
+- **Caching System**: Reduces redundant computations and improves query performance.
+- **PostgreSQL Integration**: Provides scalability and efficient data handling.
 
 ## Project Structure
 ```
@@ -17,14 +21,12 @@ The Global Data Trend Analysis App is a Streamlit-based web application designed
 |-- .streamlit/                # Configuration folder for Streamlit (e.g., custom settings)
 |-- app.py                     # Streamlit application
 |-- data_analysis.ipynb        # Jupyter Notebook for data analysis and Chow Test calculations
-|-- data.csv                   # Original dataset
-|-- results.csv                # Pre-calculated Chow Test results
+|-- docker-compose.yml         # Docker configuration for running the app and PostgreSQL database
 |-- pages/
 |   |-- page_1.py              # Trend analysis dashboard
 |   |-- page_2.py              # Upload your data section
 |-- utils.py                   # Contains external helper functions
-|-- calculated_data.db         # SQLite3 database containing calculated trend data
-|-- data.db                    # SQLite3 database containing original uploaded data
+|-- LICENSE                    # MIT License
 |-- README.md                  # Project documentation
 |-- requirements.txt           # Python dependencies
 ```
@@ -46,37 +48,17 @@ The Global Data Trend Analysis App is a Streamlit-based web application designed
    ```sh
    pip install -r requirements.txt
    ```
+4. Set up PostgreSQL Database:
 
-## Handling Large Files
-Since GitHub has a 100MB file limit, handling large files like `results.csv`, `calculated_data.db`, and `data.db` requires using Git Large File Storage (LFS):
+Ensure PostgreSQL is Installed:
+   ```sh
+   sudo apt update && sudo apt install postgresql postgresql-contrib
+   ```
 
-### **Using Git LFS (Recommended)**
-
-If your files are large, use Git Large File Storage (LFS) to track and manage them:
-
-   1. **Install Git LFS**:
-      ```sh
-      git lfs install
-      ```
-
-   2. **Track the large files**:
-      Use the following command to track the files:
-      ```sh
-      git lfs track "results.csv"
-      git lfs track "calculated_data.db"
-      git lfs track "data.db"
-      ```
-
-   3. **Add the `.gitattributes` file**:
-      The above command will automatically add the `.gitattributes` file, which is responsible for Git LFS configuration.
-
-   4. **Commit and push**:
-      After tracking the files, commit the changes and push them to the repository:
-      ```sh
-      git add .gitattributes results.csv calculated_data.db data.db
-      git commit -m "Track large files with Git LFS"
-      git push origin main
-      ```
+Set up the database:
+   ```sh
+    psql -U your_user -d your_database -f schema.sql
+   ```
 
 ## Usage
 Run the Streamlit app using the following command:
@@ -85,16 +67,33 @@ streamlit run app.py
 ```
 The application will launch in the default web browser.
 
-### **User Data Upload**:
-Users can upload their own dataset through the app interface. The system will calculate the trend using the Chow Test and store the results in the `calculated_data.db` SQLite3 database.
+### User Data Upload Process
 
+- Navigate to the "Upload Your Data" section in the app.
+- Download the provided CSV template.
+- Fill in the required data and upload the file.
+- The system processes the data, runs Chow Test analysis, and stores the results in the PostgreSQL database.
+
+### Data Processing
+
+- The data_analysis.ipynb notebook processes raw datasets and applies the Chow Test for trend detection.
+- The results are stored in PostgreSQL instead of local files for better scalability and multi-user access.
+- Caching System reduces processing time by preventing redundant calculations.
+
+### PostgreSQL & Caching Benefits
+
+- PostgreSQL:
+   - Handles large datasets efficiently.
+   - Supports concurrent users.
+   - Improves data integrity and query speed.
+- Streamlit Caching:
+   - Speeds up repeated calculations.
+   - Optimizes resource usage.
+   - Enhances user experience with faster response times.
+ 
 ### **Pages**:
 - **Trend Analysis Dashboard** (`page_1.py`): Provides an overview of the trend analysis results.
 - **Upload Your Data** (`page_2.py`): Allows users to upload their dataset, which will be processed using the Chow Test.
-
-## Data Processing
-- The `data_analysis.ipynb` file processes the original dataset (`data.csv`) and applies the Chow Test.
-- The results are stored in `results.csv` (for pre-calculated data) and in the SQLite3 database (`calculated_data.db`) when new data is uploaded via the application. The original uploaded data is stored in `data.db`.
 
 ## Requirements
 Ensure that the required Python packages are installed by using `requirements.txt`.
@@ -105,5 +104,4 @@ This project is licensed under the MIT License.
 ## Resources
 - [Streamlit Documentation](https://docs.streamlit.io)
 - [Pandas Documentation](https://pandas.pydata.org/docs/reference/index.html)
-- [SQLite3 Documentation](https://docs.python.org/3/library/sqlite3.html)
-
+- [PostgreSQL Documentation](https://www.psycopg.org/docs/)
