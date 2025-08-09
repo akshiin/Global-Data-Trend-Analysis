@@ -1,7 +1,18 @@
 # Global Data Trend Analysis App
 
 ## Overview
-The **Global Data Trend Analysis App** is a Streamlit-based web application designed to analyze global trends across various **Key Performance Indicators (KPIs)**. It utilizes **the Chow Test** to detect structural breaks and identify trending and downgrading patterns across multiple sectors and subsectors over different timeframes (**3, 5, or 10 years**).  
+The **Global Data Trend Analysis App** is a Streamlit-based web application designed to analyze global trends across various **Key Performance Indicators (KPIs)**. It utilizes **the Chow Test** to detect structural breaks and identify trending and downgrading patterns across multiple sectors and subsectors over different timeframes (**3, 5, or 10 years**).
+
+For the most interpretable and easy-to-understand results, users can select:
+
+- **Sector** → *Economy*  
+- **Subsector** → *Productivity and Labour Market*  
+- **Indicator** → *Gross Domestic Product (Billion US Dollars)*  
+
+This setup provides a clear and meaningful starting point for exploring the data.
+
+**Example view:**  
+<img width="1512" height="865" alt="image" src="https://github.com/user-attachments/assets/ea057e34-28f8-4767-a6f6-c4e9eff20f33" />
 
 Users can also **upload their own datasets**, and the system will compute trend analysis in real-time. The results are now stored in a **PostgreSQL database** for better performance and scalability. Additionally, a **caching system** has been implemented to speed up query execution and optimize resource usage.
 
